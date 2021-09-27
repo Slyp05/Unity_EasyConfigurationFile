@@ -19,7 +19,7 @@ using UnityEditor;
  *      [SerializeField] bool _booleanOption;
  *      
  *      /// <summary>Access to some boolean option...</summary>
- *      public bool booleanOption => instance._booleanOption;
+ *      public static bool booleanOption => instance._booleanOption;
  * 
  *  - There should be no 'CHANGE_ME' marker left in the script (try using Ctrl+F to search for it)
  *  
@@ -61,7 +61,7 @@ namespace CHANGE_ME
         //////////////////////////////////
         
         /// <summary>Access to some boolean option...</summary>
-        public bool booleanOption => instance._booleanOption; // CHANGE_ME
+        public static bool booleanOption => instance._booleanOption; // CHANGE_ME
 
         #region Core
         /////////////////////////////////////////////////
