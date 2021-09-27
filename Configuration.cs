@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.IO;
 #if UNITY_EDITOR
@@ -8,7 +8,8 @@ using UnityEditor;
 /*
  * 
  * DESCRIPTION:
- *  This script is useful when creating plugins for unity, it will generate a configuration asset file in a Resources folder in the hierarchy.
+ *  This script is useful when creating plugins for unity, it will generate a configuration asset file in the hierarchy.
+ *  If editorOnly is set to false, the asset file will be in a Resources folder and the Configuration class will be usable in build.
  *  A top bar button under Tools/{pluginName}/Configuration will allow the user to access the file quickly.
  * 
  * HOW TO USE:
@@ -40,11 +41,13 @@ namespace CHANGE_ME
         //   CONSTS   //
         //            //
         ////////////////
-        
+
         // name of the plugin
         const string pluginName = "CHANGE_ME";
         // path of this script relative to the root of the plugin
         const string folderExtraPath = "CHANGE_ME/Configuration.cs";
+        // set this to true if you don't want the configuration to be saved in a Resources folder (it will be not be usuable in build)
+        const bool editorOnly = false;
 
         ///////////////////////
         //                   //
@@ -59,7 +62,7 @@ namespace CHANGE_ME
         //   PUBLIC STATIC PROPERTIES   //
         //                              //
         //////////////////////////////////
-        
+
         /// <summary>Access to some boolean option...</summary>
         public static bool booleanOption => instance._booleanOption; // CHANGE_ME
 
@@ -87,7 +90,10 @@ namespace CHANGE_ME
         const string invalidFolderExtraPath = "Couldn't find '" + folderExtraPath + "'.";
 
         // public static properties
-        public static Configuration asset => instance;
+        /// <summary>Asset instance of the configuration.</summary>
+        public static Object asset => instance;
+
+        /// <summary>Folder of the plugin starting at Assets.</summary>
         public static string folderPath
         {
             [MethodImpl(MethodImplOptions.NoInlining)]
@@ -96,55 +102,63 @@ namespace CHANGE_ME
                 return GetFolderPath();
             }
         }
-        
+
         // private statics
         static string cachedFolderPath = null;
 
         static Configuration _instance = null;
         static Configuration instance
         {
+#pragma warning disable CS0162
             get
             {
                 if (_instance == null)
-                    _instance = Resources.Load<Configuration>(configResourceName);
+                {
+                    #if UNITY_EDITOR
+                    {
+                        if (editorOnly)
+                            _instance = AssetDatabase.LoadAssetAtPath<Configuration>(Path.Combine(folderPath, configFileName));
+                        else
+                            _instance = Resources.Load<Configuration>(configResourceName);
+                    }
+                    #else
+                    {
+                        _instance = Resources.Load<Configuration>(configResourceName);
+                    }
+                    #endif
+                }
 
                 if (_instance == null)
                 {
-#if UNITY_EDITOR
+                    #if UNITY_EDITOR
                     {
-                        string resourcesFolder = Path.Combine(folderPath, "Resources");
+                        string targetFolder = (editorOnly ? folderPath : Path.Combine(folderPath, "Resources"));
+                        string targetFile = Path.Combine(targetFolder, configFileName);
 
-                        if (File.Exists($"{resourcesFolder}/{configFileName}"))
+                        if (File.Exists(targetFile))
                             return CreateInstance(typeof(Configuration)) as Configuration;
 
-                        if (!Directory.Exists(resourcesFolder))
+                        if (!Directory.Exists(targetFolder))
                         {
-                            Directory.CreateDirectory(resourcesFolder);
+                            Directory.CreateDirectory(targetFolder);
                             AssetDatabase.Refresh();
                         }
 
-                        if (!AssetDatabase.IsValidFolder(resourcesFolder))
-                        {
-                            Debug.LogError(string.Format(invalidConfigurationPathFormat_folderPath, resourcesFolder));
-                            _instance = CreateInstance(typeof(Configuration)) as Configuration;
-                        }
-                        else
-                        {
-                            Debug.LogWarning(string.Format(noConfigurationFileFormat_folderPath, resourcesFolder));
-                            _instance = CreateInstance(typeof(Configuration)) as Configuration;
-                            AssetDatabase.CreateAsset(_instance, $"{resourcesFolder}/{configFileName}");
-                        }
+                        Debug.LogWarning(string.Format(noConfigurationFileFormat_folderPath, targetFolder));
+                        _instance = CreateInstance(typeof(Configuration)) as Configuration;
+                        AssetDatabase.CreateAsset(_instance, targetFile);
                     }
-#else
+                    #else
                     {
                         Debug.LogError(couldntLoadConfigurationStr);
                         _instance = CreateInstance(typeof(Configuration)) as Configuration;
                     }
-#endif
+                    #endif
                 }
 
                 return _instance;
             }
+#pragma warning restore CS0162
         }
 
         static string GetFolderPath([CallerFilePath] string sourceFilePath = "")
@@ -170,7 +184,7 @@ namespace CHANGE_ME
 
             return cachedFolderPath;
         }
-        
+
 #endregion
     }
 }
