@@ -24,7 +24,7 @@ using UnityEditor;
  *  - There should be no 'CHANGE_ME' marker left in the script (try using Ctrl+F to search for it)
  *  
  * SOURCE:
- *  *****************************************
+ *  https://github.com/Slyp05/Unity_EasyConfigurationFile
  *  Free to use in any project (even commercially) without having to credit the author.
  * 
  */
