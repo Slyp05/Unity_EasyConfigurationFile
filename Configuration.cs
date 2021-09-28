@@ -66,7 +66,7 @@ namespace CHANGE_ME
         /// <summary>Access to some boolean option...</summary>
         public static bool booleanOption => instance._booleanOption; // CHANGE_ME
 
-        #region Core
+#region Core
         /////////////////////////////////////////////////
         //                                             //
         //   YOU SHOULD NOT NEED TO CHANGE THIS PART   //
