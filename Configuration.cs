@@ -103,7 +103,7 @@ namespace CHANGE_ME
             }
         }
 
-        // private statics
+        // private static logic
         static string cachedFolderPath = null;
 
         static Configuration _instance = null;
