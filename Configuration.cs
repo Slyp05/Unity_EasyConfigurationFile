@@ -46,7 +46,7 @@ namespace CHANGE_ME
         const string pluginName = "CHANGE_ME";
         // path of this script relative to the root of the plugin
         const string folderExtraPath = "CHANGE_ME/Configuration.cs";
-        // set this to true if you don't want the configuration to be saved in a Resources folder (it will be not be usuable in build)
+        // set this to true if you don't want the configuration to be saved in a Resources folder (it will be not be usable in build)
         const bool editorOnly = false;
 
         ///////////////////////
